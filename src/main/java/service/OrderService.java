@@ -14,11 +14,11 @@ import java.util.Scanner;
 @Service
 public class OrderService {
 
-    static AnnotationConfigApplicationContext context= new AnnotationConfigApplicationContext("SpringConfig.class");
+    static AnnotationConfigApplicationContext context= new AnnotationConfigApplicationContext(SpringConfig.class);
     static OrdersRepository ordersRepository= (OrdersRepository) context.getBean("ordersRepository");
     static OrderDetailsRepository orderDetailsRepository=(OrderDetailsRepository) context.getBean("orderDetailsRepository");
 
-    public static Orders enterNewOrder(){
+    public static void enterNewOrder(){
         Scanner sc= new Scanner(System.in);
         Orders order= new Orders();
         System.out.println("Enter username");
@@ -28,7 +28,7 @@ public class OrderService {
         order.setOrderDate(LocalDate.now());
         ordersRepository.save(order);
 
-        return order;
+
     }
 
     public static void createNewOrderDetails(){
@@ -36,36 +36,64 @@ public class OrderService {
         OrderDetails orderDetails= new OrderDetails();
         System.out.println("Enter your ID: ");
         Orders order= ordersRepository.findById(sc.nextInt()).get();
+        sc.nextLine();
         System.out.println("Enter your order details here");
-        List<OrderDetails> orderDetailsList= order.getOrderDetailsList();
+
         System.out.println("1.Product name: ");
         orderDetails.setProductName(sc.nextLine());
         System.out.println("1.Product quantity: ");
         orderDetails.setQuantity(sc.nextInt());
         System.out.println("1.Product unit price: ");
         orderDetails.setUnitPrice(sc.nextDouble());
-        orderDetails.setOrderId(order.getId());
-        orderDetailsList.add(orderDetails);
-        orderDetailsRepository.saveAll(orderDetailsList);
+        orderDetails.setOrderId(order);
+        orderDetailsRepository.save(orderDetails);
 
     }
+    public static String listOrderDetails(Orders orders){
+        List<OrderDetails> detailsList= orderDetailsRepository.findByOrderId(orders);
+        for (OrderDetails od: detailsList
+        ) {
+            System.out.println(od.toString());
+        }
+        return "";
+    }
     public static void listAll(){
-        System.out.println(ordersRepository.findAll().toString());
+        List<Orders> ordersList= ordersRepository.findAll();
+        for (Orders o: ordersList
+             ) {
+            System.out.println(o.toString());
+            listOrderDetails(o);
+        }
     }
 
     public static void listById(int id){
         System.out.println(ordersRepository.findById(id).toString());
+        listOrderDetails(ordersRepository.findById(id).get());
     }
 
     public static void listOrdersInThisMonth(){
-        ordersRepository.getOrdersInCurrentMonth();
+        List<Orders> ordersList= ordersRepository.getOrdersInCurrentMonth();
+        for (Orders o: ordersList
+        ) {
+            System.out.println(o.toString());
+
+        }
     }
 
     public static void listOrderThatPurchasedMoreThan(double amount){
-        List<OrderDetails> orderDetailsList= orderDetailsRepository.getOrderDetailsListGreaterThan(amount);
-        for (OrderDetails od: orderDetailsList
+        List<Orders> ordersList= ordersRepository.getOrdersListGreaterThan(amount);
+        for (Orders o: ordersList
              ) {
-            System.out.println(ordersRepository.findById(od.getOrderId()).toString());
+            System.out.println(o.toString());
+        }
+
+    }
+    public static void listOrdersThatPurchasedAProduct(String name){
+        List<Orders> ordersList= ordersRepository.getOrdersThatPurchasedAProduct(name);
+        for (Orders o: ordersList
+        ) {
+            System.out.println(o.toString());
+            listOrderDetails(o);
         }
 
     }

@@ -1,5 +1,8 @@
 package entity;
 
+import repository.OrderDetailsRepository;
+import service.OrderService;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -21,7 +24,7 @@ public class Orders {
     @Column(name = "customerAddress")
     private String customerAddress;
 
-    @OneToMany(mappedBy = "orderId", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "orderId", fetch = FetchType.EAGER)
     private List<OrderDetails> orderDetailsList;
 
     public Orders() {
@@ -73,8 +76,6 @@ public class Orders {
                 "id=" + id +
                 ", orderDate=" + orderDate +
                 ", customerName='" + customerName + '\'' +
-                ", customerAddress='" + customerAddress + '\'' +
-                ", orderDetailsList=" + orderDetailsList.toString() +
-                '}';
+                ", customerAddress='" + customerAddress + '\'' +'}';
     }
 }
